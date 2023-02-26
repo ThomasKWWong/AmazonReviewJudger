@@ -26,64 +26,6 @@ import re
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import time
 
-HEADERS = {"User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36", "Accept-Encoding":"gzip, deflate, br", "Accept":"text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9", "DNT":"1","Connection":"close", "Upgrade-Insecure-Requests":"1"}
-URL = "https://www.amazon.com//Indoor-Basketballs-Friendly-Official-Regulation/product-reviews/B09BSGBDM8/ref=cm_cr_dp_d_show_all_btm?ie=UTF8&reviewerType=all_reviews"
-
-
-#%%
-#first scrape
-page_to_scrape = requests.get(URL, headers =  HEADERS)
-soup = BeautifulSoup(page_to_scrape.content, "html.parser")
-soupPretty = BeautifulSoup(soup.prettify(), "html.parser")
-print(soupPretty)
-
-#%%
-nltk.download([
-    "stopwords",
-    "vader_lexicon", 
-    "punkt", 
-    "state_union", 
-    'wordnet', 
-    'omw-1.4'])
-#%%
-#title stuff
-title = soupPretty.find(id='productTitle')
-if title != None:
-    title = title.get_text()
-    print(title)
-else:
-    print("no title")
-
-
-# %%
-#get all reviews
-reviews = soupPretty.find_all("span", {"class": "a-size-base review-text review-text-content"})
-for review in reviews:
-    review = (review.text) #gets review text
-    print(review)
-# %%
-#star rating
-ratings = soupPretty.find_all("i", {"data-hook":"review-star-rating"})
-for rating in ratings:
-    str = rating.span.string #gets string "#.0 out of 5 stars"
-    #print(rating)
-    print(int(str.split('.0')[0]))
-
-# %%
-#opens all reviews page of main product page
-nextLink = soupPretty.find("a", {"data-hook": "see-all-reviews-link-foot"})
-nextLink = "https://www.amazon.com/" + nextLink['href']
-#print(nextLink)
-print(nextLink)
-
-#%%
-#get link to next page
-nextLink = soupPretty.find("li", {"class": "a-last"})
-if(nextLink["class"] != ['a-disabled', 'a-last']):
-    nextLink = "https://www.amazon.com/" + nextLink.a['href']
-    print(nextLink)
-else:
-    print("last page")
 
 
 #%%
@@ -204,7 +146,7 @@ def thomas(link):
 #%%
 #sentiment analysis and return of data
 def danial(reviews):
-    
+    #creates bar plot that displays how much of each rating are present for sentiment and actual reviews
     
     fig = plt.figure()
     p1 = plt.hist(reviews.compound, bins = 15, alpha=0.5, label='Sentiment', edgecolor='blue')
@@ -216,7 +158,7 @@ def danial(reviews):
 
 
 #%%
-#violin plot
+#violin plot, shows distribution of reviews for each score
 def danialTwo(reviews2):
     #plt.clf()
     fig = plt.figure()
@@ -233,6 +175,7 @@ def danialTwo(reviews2):
     return fig
 
 #%%
+#plot that shows how often words ocurred
 def wong(reviews):
     
     all_words = ' '.join([word for word in reviews['text_string']])
